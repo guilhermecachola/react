@@ -1,4 +1,4 @@
-import MagiaDoJSX from '@/app/components/MagiaDoJSX/sobreC'
+import MagiaDoJSX from '@/app/lab10/components/sobre/sobreC'
 
 export default function Home() {
     return(

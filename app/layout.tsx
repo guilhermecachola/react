@@ -30,7 +30,7 @@ export default function RootLayout({
       <body className='flex flex-col justify-start gap-4 p-20 items-center min-h-screen'>
       
         
-        <main className="bg-blue-200 p-10 rounded-2xl max-w-4xl mx-auto">
+        <main className="bg-blue-200 border-blue-400 border-4 p-10 rounded-2xl max-w-4xl mx-auto">
           {children}
         </main>
         
