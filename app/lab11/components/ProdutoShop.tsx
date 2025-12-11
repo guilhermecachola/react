@@ -8,6 +8,7 @@ import { Product } from "@/app/lab11/models/interfaces";
 import OrderSelect from "@/app/lab11/components/Select";
 
 
+
 // fetcher com tipo correto
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -25,6 +26,30 @@ export default function ProdutoShop() {
     "https://deisishop.pythonanywhere.com/products",
     fetcher
   );
+
+  const [cart, setCart] = useState<Product[]>([]);
+
+// carregar carrinho do localStorage (apenas 1 vez)
+useEffect(() => {
+  const saved = localStorage.getItem("cart");
+  if (saved) setCart(JSON.parse(saved));
+}, []);
+
+// sempre que cart muda → guardar na localStorage
+useEffect(() => {
+  localStorage.setItem("cart", JSON.stringify(cart));
+}, [cart]);
+
+// função para adicionar ao carrinho
+const addToCart = (produto: Product) => {
+  setCart((prev) => [...prev, produto]);
+};
+
+// função para remover do carrinho
+const removeFromCart = (id: number) => {
+  setCart((prev) => prev.filter((p) => p.id !== id));
+};
+
 
   // filtrar dados sempre que search ou data mudarem
   useEffect(() => {
@@ -69,7 +94,7 @@ export default function ProdutoShop() {
   return (
     <div className="p-6">
 
-      <h1 className="text-3xl font-bold mb-6">Produtos DEISIshop</h1>
+      
 <header className="flex justify-between">
       {/* INPUT DE PESQUISA */}
       <input
@@ -84,10 +109,26 @@ export default function ProdutoShop() {
       {/* GRID DE PRODUTOS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {filteredData.map((produto: Product) => (
-          <ProdutoCard key={produto.id} produto={produto} />
+         <ProdutoCard 
+  produto={produto}
+  modo="loja"
+  onAdd={addToCart}
+/>
+
         ))}
       </div>
+<h2 className="text-2xl font-bold mt-10">Carrinho</h2>
 
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+  {cart.map((produto: Product) => (
+    <ProdutoCard 
+      key={produto.id}
+      produto={produto}
+      modo="cart"
+      onRemove={removeFromCart}
+    />
+  ))}
+</div>
     </div>
   );
 }
