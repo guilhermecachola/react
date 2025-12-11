@@ -76,7 +76,7 @@ export default function Comprar({ cart, setCart, total }: ComprarProps) {
         placeholder="Cupão de desconto"
         value={coupon}
         onChange={(e) => setCoupon(e.target.value)}
-        className="border-2 p-2 w-3/4 m-3 border-blue-400"
+        className="border-2 rounded p-2 w-3/4 m-3 border-blue-400"
       />
 
       <input
@@ -84,13 +84,13 @@ export default function Comprar({ cart, setCart, total }: ComprarProps) {
       placeholder="Insira o seu nome"
       value={name}
     onChange={(nome) => setName(nome.target.value)}
-    className="border-2 p-2 w-1/4 m-3 border-blue-400"
+    className="border-2 rounded p-2 w-1/4 m-3 border-blue-400"
     />
 </div>
       {/* Botão comprar */}
       <button
         onClick={buy}
-        className='py-2 px-4 font-bold rounded m-3 bg-blue-200 border-2 border-blue-600 text-blue-600 hover:bg-blue-300'    
+        className='py-2 px-4 font-bold rounded m-3 bg-blue-200 border-2  border-blue-600 text-blue-600 hover:bg-blue-300'    
       >
         Comprar ({total.toFixed(2)}€)
       </button>

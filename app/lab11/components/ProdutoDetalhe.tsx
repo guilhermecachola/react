@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function ProdutoDetalhe({ produto } : any) {
   if (!produto) return null;
-
+  
   // Se image já vier com http, não concatenamos
   const linkFinal = produto.image.startsWith("http")
     ? produto.image
@@ -22,6 +22,7 @@ export default function ProdutoDetalhe({ produto } : any) {
 
       <p className="text-lg mt-4 font-bold">{produto.description}</p>
       <p className="text-xl font-bold mt-2">{produto.price} €</p>
+       <p className="text-xl font-bold mt-2">Este produto tem um rating de {produto.rating.rate} em {produto.rating.count}</p>
     </div>
   );
 }
