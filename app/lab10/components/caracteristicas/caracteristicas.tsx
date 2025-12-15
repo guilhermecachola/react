@@ -95,7 +95,7 @@ export default function ListaProdutos() {
  
   return ( 
     <ul> 
-      {/* O 'data' contém a resposta da API */} 
+  /*    {/* O 'data' contém a resposta da API */} 
    /*   {data.map((prod: any) => ( 
         <li key={prod.id}>{prod.nome}</li> 
       ))} 
@@ -819,3 +819,4 @@ Copy
 <!-- Visibilidade responsiva -->
 <div class="block md:hidden">Apenas em mobile</div>
 <div class="hidden md:block">Apenas em desktop</div>
+
