@@ -1,3 +1,161 @@
+
+Aqui está o Manual de Sobrevivência Atualizado, ajustado especificamente para os ficheiros do teu projeto (lab11).
+
+Este guia usa os teus caminhos reais (ex: @/app/lab11/...), o teu fetcher específico e os teus modelos de dados. Podes copiar e usar isto como "cábula" durante a defesa.
+
+📘 Manual de Sobrevivência: Projeto lab11 (Defesa)
+1. Regra de Ouro: Client vs Server
+A maioria dos ficheiros que vais mexer (page.tsx, componentes) precisam de interatividade ou acesso a dados no browser. Primeira linha obrigatória:
+
+TypeScript
+
+"use client";
+2. Interfaces (Modelos)
+Se precisares de criar variáveis ou receber dados num componente, usa as interfaces que já tens em lab11/models/interfaces.ts.
+
+Onde estão: @/app/lab11/models/interfaces
+
+Exemplo de uso:
+
+TypeScript
+
+import { Product } from "@/app/lab11/models/interfaces";
+
+// Se criares um componente novo que recebe um produto:
+interface Props {
+  produto: Product;
+}
+
+export default function MeuComponente({ produto }: Props) {
+  return <div>{produto.title}</div>;
+}
+3. Data Fetching (useSWR)
+Para buscar dados da API deisishop, usa o useSWR com o teu fetcher já criado.
+
+Importações:
+
+TypeScript
+
+import useSWR from "swr";
+import { fetcher } from "@/app/lab11/lib/fetcher"; // Ajusta o caminho se necessário
+Sintaxe para buscar TODOS os produtos:
+
+TypeScript
+
+const { data, error, isLoading } = useSWR(
+  "https://deisishop.pythonanywhere.com/products",
+  fetcher
+);
+
+if (isLoading) return <div>A carregar...</div>;
+if (error) return <div>Erro ao carregar.</div>;
+Sintaxe para buscar UM produto (por ID):
+
+TypeScript
+
+// "id" geralmente vem do useParams()
+const { data, error, isLoading } = useSWR(
+  id ? `https://deisishop.pythonanywhere.com/products/${id}` : null,
+  fetcher
+);
+4. Ler Parâmetros do URL (Rotas Dinâmicas)
+Usado na página de detalhes lab11/produtos/[id]/page.tsx.
+
+Sintaxe:
+
+TypeScript
+
+"use client";
+import { useParams } from "next/navigation";
+
+export default function PaginaDetalhe() {
+  const params = useParams();
+  const id = params.id; // O nome 'id' vem da pasta [id]
+
+  // Usa este 'id' no useSWR (ver ponto 3)
+  return <h1>Produto ID: {id}</h1>;
+}
+5. Carrinho e LocalStorage (Estado Persistente)
+O teu projeto usa um padrão específico com useEffect para guardar o carrinho no browser. Se tiveres de mexer nisto, segue este modelo:
+
+Estado e Carga Inicial:
+
+TypeScript
+
+const [cart, setCart] = useState<Product[]>([]);
+
+// 1. Ler do LocalStorage ao iniciar
+useEffect(() => {
+  const saved = localStorage.getItem("cart");
+  if (saved) setCart(JSON.parse(saved));
+}, []);
+
+// 2. Guardar no LocalStorage sempre que o carrinho muda
+useEffect(() => {
+  localStorage.setItem("cart", JSON.stringify(cart));
+}, [cart]);
+Adicionar ao Carrinho:
+
+TypeScript
+
+function addToCart(produto: Product) {
+  setCart((prev) => [...prev, produto]);
+}
+Remover do Carrinho:
+
+TypeScript
+
+function removeFromCart(id: number) {
+  setCart((prev) => prev.filter((p) => p.id !== id));
+}
+6. Criar Novos Componentes (Estilo ShadCN/Tailwind)
+Se te pedirem para criar um novo "Card" ou secção, usa a estrutura do teu ProdutoCard.tsx para manter a coerência.
+
+Exemplo Rápido:
+
+TypeScript
+
+import { Card, CardContent, CardTitle } from "@/components/ui/card"; // Componentes UI do projeto
+
+export default function NovoCard({ titulo }: { titulo: string }) {
+  return (
+    <Card className="p-4 bg-blue-100 border-2 border-blue-500">
+      <CardTitle className="text-center text-blue-700">
+        {titulo}
+      </CardTitle>
+      <CardContent>
+        <p>Conteúdo aqui...</p>
+      </CardContent>
+    </Card>
+  );
+}
+7. Checklist Rápida para a Prova
+Criar Nova Página?
+
+Cria pasta em app/lab11/nova-pagina.
+
+Cria ficheiro page.tsx.
+
+Adiciona "use client";.
+
+Exporta a função: export default function NovaPagina() {...}.
+
+Adicionar Funcionalidade (ex: botão de "Like")?
+
+Vai ao componente (ex: ProdutoCard.tsx).
+
+Adiciona estado: const [liked, setLiked] = useState(false);.
+
+Adiciona botão no JSX: <button onClick={() => setLiked(!liked)}>{liked ? '❤️' : '🤍'}</button>.
+
+Filtrar Produtos?
+
+No ficheiro onde tens o data (do SWR).
+
+const filtrados = data.filter(p => p.price < 50);
+
+Usa filtrados.map(...) em vez de data.map(...).
+__________________________________________________________________________________________________________
 /*
 1. A Regra Mais Importante: Client vs Server 
 Se vais usar Hooks (useState, useEffect, useParams, useSWR) ou adicionar 
@@ -819,4 +977,358 @@ Copy
 <!-- Visibilidade responsiva -->
 <div class="block md:hidden">Apenas em mobile</div>
 <div class="hidden md:block">Apenas em desktop</div>
+
+_________________________________________________________-
+Manual Final – React & Next.js (Projeto Loja)
+Manual completo para defesa prática de React e Next.js. Inclui hooks, rotas, API (GET/POST),
+formulários, filtros e ordenação de produtos. Pensado para consulta rápida durante a defesa.
+Estrutura do Projeto
+app/
+ produtos/
+ page.tsx
+ [id]/page.tsx
+ carrinho/page.tsx
+ api/
+ produtos/
+ route.ts
+ [id]/route.ts
+Interfaces TypeScript
+export interface Produto {
+  id: number
+  nome: string
+  preco: number
+  categoria: string
+  descricao?: string
+}
+useState
+Gerir estado local (carrinho, filtros, formulários).
+const [itens, setItens] = useState<Produto[]>([])
+useEffect
+Efeitos colaterais: localStorage, reações a mudanças.
+useEffect(() => {
+  localStorage.setItem('carrinho', JSON.stringify(itens))
+}, [itens])
+useSWR
+const fetcher = (url: string) =>
+  fetch(url).then(res => res.json())
+const { data, error, isLoading } =
+  useSWR<Produto[]>('/api/produtos', fetcher)
+if (isLoading) return <p>Loading...</p>
+if (error) return <p>Erro</p>
+Lista de Produtos
+{data?.map(p => (
+  <div key={p.id}>
+    <h3>{p.nome}</h3>
+    <p>{p.preco} €</p>
+  </div>
+))}
+Filtros e Ordenação de Produtos
+Ordenar produtos por nome ou preço usando useState e sort numa cópia do array.
+type Ordenacao = 'AZ' | 'ZA' | 'PRECO_ASC' | 'PRECO_DESC'
+const [ordem, setOrdem] = useState<Ordenacao>('AZ')
+<select value={ordem} onChange={e => setOrdem(e.target.value as Ordenacao)}>
+  <option value="AZ">Nome A-Z</option>
+  <option value="ZA">Nome Z-A</option>
+  <option value="PRECO_ASC">Preço ↑</option>
+  <option value="PRECO_DESC">Preço ↓</option>
+</select>
+const produtosOrdenados = [...(data ?? [])].sort((a, b) => {
+  switch (ordem) {
+    case 'AZ': return a.nome.localeCompare(b.nome)
+    case 'ZA': return b.nome.localeCompare(a.nome)
+    case 'PRECO_ASC': return a.preco - b.preco
+    case 'PRECO_DESC': return b.preco - a.preco
+    default: return 0
+  }
+})
+Rotas Dinâmicas + useParams
+'use client'
+const params = useParams<{ id: string }>()
+useSWR(`/api/produtos/${params.id}`, fetcher)
+API Next.js – GET
+export async function GET() {
+  return Response.json(produtos)
+}
+API Next.js – POST
+export async function POST(request: Request) {
+  const novoProduto = await request.json()
+  produtos.push(novoProduto)
+  return Response.json(novoProduto, { status: 201 })
+}
+POST no Frontend
+await fetch('/api/produtos', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ nome, preco, categoria })
+})
+Atualizar Lista após POST
+import { mutate } from 'swr'
+mutate('/api/produtos')
+Componentes e Props
+interface Props {
+  produto: Produto
+  onComprar: () => void
+}
+
+ use client onde há hooks 
+para fetch 
+ useState para estado e filtros 
+ Filtros com sort em cópia 
+ useParams para rotas 
+ useEffect para efeitos 
+ Interfaces TypeScript 
+ useSWR
+ GET e
+POST na API  Renderização condicional  Código simples e limpo
+
+1️⃣ "use client" — quando usar
+O que é
+
+No Next.js (App Router), os componentes são Server Components por padrão.
+Se você usar hooks (useState, useEffect, useParams, useSWR, etc.), o arquivo TEM que ser client.
+
+Quando usar
+
+Sempre que houver:
+
+estado
+
+efeitos
+
+eventos (onClick)
+
+fetch no browser
+
+Exemplo
+"use client";
+
+import { useState } from "react";
+
+export default function Contador() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <button onClick={() => setCount(count + 1)}>
+      Cliques: {count}
+    </button>
+  );
+}
+
+2️⃣ fetch — buscar dados
+GET simples
+"use client";
+
+import { useEffect, useState } from "react";
+
+export default function Produtos() {
+  const [produtos, setProdutos] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/produtos")
+      .then(res => res.json())
+      .then(data => setProdutos(data));
+  }, []);
+
+  return (
+    <ul>
+      {produtos.map((p: any) => (
+        <li key={p.id}>{p.nome}</li>
+      ))}
+    </ul>
+  );
+}
+
+POST simples
+async function criarProduto() {
+  await fetch("/api/produtos", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      nome: "Produto novo",
+      preco: 10,
+    }),
+  });
+}
+
+3️⃣ useState — estado e filtros
+O que é
+
+Guarda valores que mudam no tempo (likes, filtros, inputs, etc.).
+
+Exemplo com filtro
+"use client";
+
+import { useState } from "react";
+
+export default function Filtro() {
+  const [busca, setBusca] = useState("");
+
+  return (
+    <>
+      <input
+        value={busca}
+        onChange={(e) => setBusca(e.target.value)}
+        placeholder="Pesquisar..."
+      />
+      <p>Você digitou: {busca}</p>
+    </>
+  );
+}
+
+4️⃣ Filtros com sort (cópia segura)
+
+⚠️ Nunca use .sort() direto no estado
+Ele muta o array original.
+
+Forma correta
+const produtosOrdenados = [...produtos].sort((a, b) => {
+  return a.preco - b.preco; // crescente
+});
+
+Exemplo completo
+const [produtos, setProdutos] = useState([
+  { id: 1, nome: "A", preco: 30 },
+  { id: 2, nome: "B", preco: 10 },
+]);
+
+const ordenados = [...produtos].sort((a, b) => a.preco - b.preco);
+
+5️⃣ useParams — rotas dinâmicas
+Estrutura
+app/produto/[id]/page.tsx
+
+Código
+"use client";
+
+import { useParams } from "next/navigation";
+
+export default function Produto() {
+  const { id } = useParams();
+
+  return <h1>Produto ID: {id}</h1>;
+}
+
+
+📌 URL:
+
+/produto/123
+
+6️⃣ useEffect — efeitos colaterais
+O que é
+
+Executa código quando algo acontece:
+
+ao carregar a página
+
+quando um estado muda
+
+Executar só uma vez (on mount)
+useEffect(() => {
+  console.log("Página carregou");
+}, []);
+
+Executar quando estado muda
+useEffect(() => {
+  console.log("Busca mudou:", busca);
+}, [busca]);
+
+7️⃣ Interfaces TypeScript
+O que é
+
+Define a forma dos dados.
+
+Exemplo
+interface Produto {
+  id: number;
+  nome: string;
+  preco: number;
+}
+
+Usando
+const [produtos, setProdutos] = useState<Produto[]>([]);
+
+8️⃣ useSWR — fetch moderno
+O que é
+
+cache
+
+revalidação automática
+
+código mais limpo
+
+Exemplo
+"use client";
+
+import useSWR from "swr";
+
+const fetcher = (url: string) =>
+  fetch(url).then(res => res.json());
+
+export default function Produtos() {
+  const { data, error, isLoading } = useSWR("/api/produtos", fetcher);
+
+  if (isLoading) return <p>Carregando...</p>;
+  if (error) return <p>Erro</p>;
+
+  return (
+    <ul>
+      {data.map((p: any) => (
+        <li key={p.id}>{p.nome}</li>
+      ))}
+    </ul>
+  );
+}
+
+9️⃣ API — GET e POST (Next.js)
+app/api/produtos/route.ts
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  return NextResponse.json([
+    { id: 1, nome: "Produto A" },
+  ]);
+}
+
+export async function POST(request: Request) {
+  const body = await request.json();
+
+  return NextResponse.json({
+    message: "Produto criado",
+    produto: body,
+  });
+}
+
+🔟 Renderização condicional
+Exemplo simples
+{isLoading && <p>Carregando...</p>}
+
+{produtos.length === 0 ? (
+  <p>Nenhum produto</p>
+) : (
+  <ListaProdutos />
+)}
+
+✅ Resumo mental )
+
+"use client" → hooks
+
+useState → estado
+
+useEffect → efeitos
+
+useParams → rotas
+
+useSWR → fetch inteligente
+
+sort → sempre em cópia
+
+interface → segurança
+
+API → GET / POST
+
+Condicional → mostrar ou esconder
+
+
 
